@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
-# Configure your nginx server to have a custom 404 page that contains the string Ceci n'est pas une page.
-sudo apt-get update
-sudo apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
-echo "Holberton School" > /var/www/html/index.html
-echo "Ceci n'est pas une page" > /var/www/html/404.html
-printf %s "server {
-    listen 80;
-    listen [::]:80 default_server;
-    root   /var/www/html;
-    index  index.html index.htm index.nginx-debian.html;
-    location /redirect_me {
-        return 301 https://www.holbertonschool.com/co;
-    }
-    error_page 404 /404.html;
-    location = /404.html {
-        internal;
-    }
-}" > /etc/nginx/sites-available/default
-service nginx restart
+# Sets up a custom 404 page in Nginx
+
+sudo apt update -y
+sudo apt install nginx -y
+
+# Create the custom 404 page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/error_404.html
+
+# Configure Nginx to use the custom 404 page
+sudo sed -i '/server_name _;/a \\n    error_page 404 /error_404.html;\n    location = /error_404.html {\n        root /var/www/html;\n        internal;\n    }' /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo service nginx restart
